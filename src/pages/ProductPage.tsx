@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Sparkles, Zap } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
+import { Dialog } from "../components/ui/dialog";
+import BillingInfoModal from "../components/billing-info-modal";
 
 type GalleryItem = {
   id: string;
@@ -56,6 +58,7 @@ export default function ProductPage() {
   const [selectedColorId, setSelectedColorId] = useState(
     colorOptions[0]?.id ?? "",
   );
+  const [isBillingOpen, setIsBillingOpen] = useState(false);
 
   const selectedGallery = useMemo(
     () =>
@@ -72,7 +75,7 @@ export default function ProductPage() {
     setSelectedColorId(colorId);
   };
 
-  const handleCheckout = () => {};
+  const handleOpenBilling = () => setIsBillingOpen(true);
 
   return (
     <section className="mx-auto min-h-screen w-full max-w-5xl bg-[#f8f5ff] pb-28 text-[#1f1f2d] md:px-6 md:pb-8">
@@ -221,7 +224,7 @@ export default function ProductPage() {
               <div className="hidden md:block">
                 <Button
                   type="button"
-                  onClick={handleCheckout}
+                  onClick={handleOpenBilling}
                   className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae]"
                 >
                   Pagar con tarjeta
@@ -236,13 +239,17 @@ export default function ProductPage() {
         <div className="mx-auto max-w-xl">
           <Button
             type="button"
-            onClick={handleCheckout}
+            onClick={handleOpenBilling}
             className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae]"
           >
             Pagar con tarjeta
           </Button>
         </div>
       </div>
+
+      <Dialog open={isBillingOpen} onOpenChange={setIsBillingOpen}>
+        <BillingInfoModal />
+      </Dialog>
     </section>
   );
 }
