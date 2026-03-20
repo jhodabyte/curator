@@ -1,9 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Sparkles, Zap } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 import { Dialog } from "../components/ui/dialog";
 import BillingInfoModal from "../components/billing-info-modal";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  setSelectedGalleryId,
+  setSelectedColorId,
+} from "../store/slices/productSlice";
+import { openBillingModal, setBillingOpen } from "../store/slices/uiSlice";
 
 type GalleryItem = {
   id: string;
@@ -52,13 +58,12 @@ const colorOptions: ColorOption[] = [
 ];
 
 export default function ProductPage() {
-  const [selectedGalleryId, setSelectedGalleryId] = useState(
-    galleryItems[0]?.id ?? "",
+  const dispatch = useAppDispatch();
+  const selectedGalleryId = useAppSelector(
+    (state) => state.product.selectedGalleryId,
   );
-  const [selectedColorId, setSelectedColorId] = useState(
-    colorOptions[0]?.id ?? "",
-  );
-  const [isBillingOpen, setIsBillingOpen] = useState(false);
+  const selectedColorId = useAppSelector((state) => state.product.selectedColorId);
+  const isBillingOpen = useAppSelector((state) => state.ui.isBillingOpen);
 
   const selectedGallery = useMemo(
     () =>
@@ -68,14 +73,14 @@ export default function ProductPage() {
   );
 
   const handleSelectGallery = (galleryId: string) => {
-    setSelectedGalleryId(galleryId);
+    dispatch(setSelectedGalleryId(galleryId));
   };
 
   const handleSelectColor = (colorId: string) => {
-    setSelectedColorId(colorId);
+    dispatch(setSelectedColorId(colorId));
   };
 
-  const handleOpenBilling = () => setIsBillingOpen(true);
+  const handleOpenBilling = () => dispatch(openBillingModal());
 
   return (
     <section className="mx-auto min-h-screen w-full max-w-5xl bg-[#f8f5ff] pb-28 text-[#1f1f2d] md:px-6 md:pb-8">
@@ -247,7 +252,10 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <Dialog open={isBillingOpen} onOpenChange={setIsBillingOpen}>
+      <Dialog
+        open={isBillingOpen}
+        onOpenChange={(isOpen) => dispatch(setBillingOpen(isOpen))}
+      >
         <BillingInfoModal />
       </Dialog>
     </section>

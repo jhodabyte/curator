@@ -13,6 +13,9 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { cn } from "../lib/utils";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setBillingInfo } from "../store/slices/checkoutSlice";
+import { closeBillingModal } from "../store/slices/uiSlice";
 
 const inputClassName =
   "h-12 rounded-2xl border-0 bg-[#f3f0ff] px-4 text-base text-[#1f1f2d] shadow-none placeholder:text-[#9b96b0] focus-visible:ring-2 focus-visible:ring-[#3525cd]/30";
@@ -33,22 +36,21 @@ const billingSchema = z.object({
 type BillingFormData = z.infer<typeof billingSchema>;
 
 export default function BillingInfoModal() {
+  const dispatch = useAppDispatch();
+  const billingInfo = useAppSelector((state) => state.checkout.billingInfo);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<BillingFormData>({
     resolver: zodResolver(billingSchema),
-    defaultValues: {
-      fullName: "Julian Casablancas",
-      street: "",
-      city: "",
-      postalCode: "",
-    },
+    defaultValues: billingInfo,
   });
 
   const onSubmit = (data: BillingFormData) => {
-    console.log(data);
+    dispatch(setBillingInfo(data));
+    dispatch(closeBillingModal());
   };
 
   return (
