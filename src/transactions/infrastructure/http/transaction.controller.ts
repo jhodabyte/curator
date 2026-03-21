@@ -5,14 +5,13 @@ import {
   HttpException,
   HttpStatus,
   Param,
-  Patch,
   Post,
 } from '@nestjs/common';
 import { CreateTransactionUseCase } from 'src/transactions/application/use-cases/create-transaction.use-case';
 import { GetTransactionUseCase } from 'src/transactions/application/use-cases/get-transaction.use-case';
-import { UpdateTransactionStatusUseCase } from 'src/transactions/application/use-cases/update-transaction-status.use-case';
+import { ProcessPaymentUseCase } from 'src/transactions/application/use-cases/process-payment.use-case';
 import { CreateTransactionRequestDto } from './dto/create-transaction-request.dto';
-import { UpdateTransactionStatusRequestDto } from './dto/update-transaction-status-request.dto';
+import { ProcessPaymentRequestDto } from './dto/process-payment-request.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
 
 @Controller('transactions')
@@ -20,7 +19,7 @@ export class TransactionController {
   constructor(
     private readonly createTransactionUseCase: CreateTransactionUseCase,
     private readonly getTransactionUseCase: GetTransactionUseCase,
-    private readonly updateTransactionStatusUseCase: UpdateTransactionStatusUseCase,
+    private readonly processPaymentUseCase: ProcessPaymentUseCase,
   ) {}
 
   @Post()
@@ -47,15 +46,15 @@ export class TransactionController {
     return TransactionResponseDto.fromDomain(result.value);
   }
 
-  @Patch(':id/status')
-  async updateStatus(
+  @Post(':id/pay')
+  async processPayment(
     @Param('id') id: string,
-    @Body() body: UpdateTransactionStatusRequestDto,
+    @Body() body: ProcessPaymentRequestDto,
   ): Promise<TransactionResponseDto> {
-    const result = await this.updateTransactionStatusUseCase.execute({
+    const result = await this.processPaymentUseCase.execute({
       transactionId: id,
-      wompiTransactionId: body.wompiTransactionId,
-      status: body.status,
+      cardToken: body.cardToken,
+      installments: body.installments,
     });
 
     if (!result.ok) {

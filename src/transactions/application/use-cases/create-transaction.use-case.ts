@@ -9,6 +9,14 @@ import {
   PRODUCT_REPOSITORY,
   type ProductRepository,
 } from 'src/products/domain/product.repository';
+import {
+  DELIVERY_REPOSITORY,
+  type DeliveryRepository,
+} from 'src/deliveries/domain/delivery.repository';
+import {
+  Delivery,
+  DeliveryStatus,
+} from 'src/deliveries/domain/delivery.entity';
 import { err, ok, Result } from 'src/shared/result';
 import {
   Transaction,
@@ -31,6 +39,10 @@ interface CreateTransactionInput {
     email: string;
     phone: string;
   };
+  delivery: {
+    address: string;
+    city: string;
+  };
 }
 
 @Injectable()
@@ -42,6 +54,8 @@ export class CreateTransactionUseCase {
     private readonly productRepository: ProductRepository,
     @Inject(CUSTOMER_REPOSITORY)
     private readonly customerRepository: CustomerRepository,
+    @Inject(DELIVERY_REPOSITORY)
+    private readonly deliveryRepository: DeliveryRepository,
   ) {}
 
   async execute(input: CreateTransactionInput): Promise<Result<Transaction>> {
@@ -85,6 +99,20 @@ export class CreateTransactionUseCase {
     });
 
     await this.transactionRepository.save(transaction);
+
+    const delivery = new Delivery({
+      id: randomUUID(),
+      transactionId: transaction.id,
+      customerId: customer.id,
+      productId: product.id,
+      quantity: input.quantity,
+      address: input.delivery.address,
+      city: input.delivery.city,
+      status: DeliveryStatus.PENDING,
+      createdAt: new Date(),
+    });
+
+    await this.deliveryRepository.save(delivery);
 
     return ok(transaction);
   }

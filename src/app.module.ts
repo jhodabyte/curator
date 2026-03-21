@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
 import { CustomersModule } from './customers/customers.module';
 import { TransactionModule } from './transactions/transaction.module';
+import { DeliveriesModule } from './deliveries/deliveries.module';
 import { DataSource } from 'typeorm';
 import { seedProducts } from './products/infrastructure/seed/product.seed';
 
@@ -29,6 +30,7 @@ import { seedProducts } from './products/infrastructure/seed/product.seed';
     ProductsModule,
     CustomersModule,
     TransactionModule,
+    DeliveriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
