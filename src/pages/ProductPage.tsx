@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Sparkles, Zap, Loader2, AlertCircle } from "lucide-react";
+import { useEffect } from "react";
+import { Sparkles, Zap, Loader2, AlertCircle, Minus, Plus } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 import { Dialog } from "../components/ui/dialog";
@@ -7,18 +7,12 @@ import BillingInfoModal from "../components/checkout/billing-info-modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setSelectedGalleryId,
-  setSelectedColorId,
   setSelectedProduct,
+  setQuantity,
   fetchProducts,
 } from "../store/slices/productSlice";
 import { openBillingModal, setBillingOpen } from "../store/slices/uiSlice";
 import { formatPrice } from "../lib/format";
-
-type GalleryItem = {
-  id: string;
-  label: string;
-  src: string;
-};
 
 type FeatureItem = {
   id: string;
@@ -26,18 +20,6 @@ type FeatureItem = {
   description: string;
   icon: "sparkles" | "zap";
 };
-
-type ColorOption = {
-  id: string;
-  label: string;
-  value: string;
-};
-
-const galleryItems: GalleryItem[] = [
-  { id: "image-1", label: "Vista 1", src: "/images/imagen-1.png" },
-  { id: "image-2", label: "Vista 2", src: "/images/imagen-2.png" },
-  { id: "image-3", label: "Vista 3", src: "/images/imagen-3.png" },
-];
 
 const featureItems: FeatureItem[] = [
   {
@@ -54,23 +36,14 @@ const featureItems: FeatureItem[] = [
   },
 ];
 
-const colorOptions: ColorOption[] = [
-  { id: "midnight", label: "Midnight Blue", value: "#141c4a" },
-  { id: "violet", label: "Electric Violet", value: "#3828cf" },
-  { id: "silver", label: "Glacier Silver", value: "#a0a5b8" },
-];
-
 export default function ProductPage() {
   const dispatch = useAppDispatch();
   const selectedGalleryId = useAppSelector(
-    (state) => state.product.selectedGalleryId,
-  );
-  const selectedColorId = useAppSelector(
-    (state) => state.product.selectedColorId,
+    (state) => state.product.selectedGalleryId
   );
   const isBillingOpen = useAppSelector((state) => state.ui.isBillingOpen);
-  const { products, selectedProduct, loading, error } = useAppSelector(
-    (state) => state.product,
+  const { products, selectedProduct, quantity, loading, error } = useAppSelector(
+    (state) => state.product
   );
 
   useEffect(() => {
@@ -79,25 +52,23 @@ export default function ProductPage() {
     }
   }, [dispatch, products.length]);
 
-  const selectedGallery = useMemo(
-    () =>
-      galleryItems.find((item) => item.id === selectedGalleryId) ??
-      galleryItems[0],
-    [selectedGalleryId],
-  );
+  const galleryImages = selectedProduct?.images ?? [];
 
-  const handleSelectGallery = (galleryId: string) => {
-    dispatch(setSelectedGalleryId(galleryId));
-  };
+  const selectedImageIndex = Number(selectedGalleryId) || 0;
+  const selectedImageSrc =
+    galleryImages[selectedImageIndex] ?? galleryImages[0];
 
-  const handleSelectColor = (colorId: string) => {
-    dispatch(setSelectedColorId(colorId));
+  const handleSelectGallery = (index: number) => {
+    dispatch(setSelectedGalleryId(String(index)));
   };
 
   const handleOpenBilling = () => dispatch(openBillingModal());
 
   const handleSelectProduct = (product: typeof selectedProduct) => {
-    if (product) dispatch(setSelectedProduct(product));
+    if (product) {
+      dispatch(setSelectedProduct(product));
+      dispatch(setSelectedGalleryId("0"));
+    }
   };
 
   const isOutOfStock = selectedProduct ? selectedProduct.stock <= 0 : false;
@@ -158,7 +129,7 @@ export default function ProductPage() {
                   "shrink-0 rounded-2xl px-4 py-2 text-xs font-bold transition-all",
                   selectedProduct.id === product.id
                     ? "bg-[#3525cd] text-white"
-                    : "bg-[#ece9f8] text-[#6b6787] hover:bg-[#e0dcf5]",
+                    : "bg-[#ece9f8] text-[#6b6787] hover:bg-[#e0dcf5]"
                 )}
               >
                 {product.name}
@@ -172,46 +143,48 @@ export default function ProductPage() {
             <div>
               <div className="grid place-items-center rounded-3xl p-8 md:p-10 bg-[#efebfa]">
                 <img
-                  src={selectedProduct.imageUrl || selectedGallery.src}
+                  src={selectedImageSrc}
                   alt={selectedProduct.name}
                   className="h-[300px] w-[300px] rounded-3xl object-contain p-2 transition-all duration-300"
                 />
               </div>
 
-              <div className="mt-3 flex items-center gap-2 md:mt-4">
-                {galleryItems.map((item) => {
-                  const isSelected = selectedGalleryId === item.id;
+              {galleryImages.length > 1 && (
+                <div className="mt-3 flex items-center gap-2 md:mt-4">
+                  {galleryImages.map((src, index) => {
+                    const isSelected = selectedImageIndex === index;
 
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      tabIndex={0}
-                      aria-label={`Seleccionar vista ${item.label}`}
-                      aria-pressed={isSelected}
-                      onClick={() => handleSelectGallery(item.id)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          handleSelectGallery(item.id);
-                        }
-                      }}
-                      className={cn(
-                        "grid size-12 place-items-center rounded-full border bg-white transition-all md:size-14",
-                        isSelected
-                          ? "border-[#4f46e5] ring-2 ring-[#4f46e5]/25"
-                          : "border-[#d8d4eb] hover:border-[#b6afe5]",
-                      )}
-                    >
-                      <img
-                        src={item.src}
-                        alt={item.label}
-                        className="size-8 rounded-full object-cover md:size-9"
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <button
+                        key={src}
+                        type="button"
+                        tabIndex={0}
+                        aria-label={`Seleccionar vista ${index + 1}`}
+                        aria-pressed={isSelected}
+                        onClick={() => handleSelectGallery(index)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            handleSelectGallery(index);
+                          }
+                        }}
+                        className={cn(
+                          "grid size-12 place-items-center rounded-full border bg-white transition-all md:size-14",
+                          isSelected
+                            ? "border-[#4f46e5] ring-2 ring-[#4f46e5]/25"
+                            : "border-[#d8d4eb] hover:border-[#b6afe5]"
+                        )}
+                      >
+                        <img
+                          src={src}
+                          alt={`Vista ${index + 1}`}
+                          className="size-8 rounded-full object-cover md:size-9"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4 md:space-y-5">
@@ -249,6 +222,31 @@ export default function ProductPage() {
               </p>
 
               <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-[#6b6787]">Cantidad</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => dispatch(setQuantity(Math.max(1, quantity - 1)))}
+                    disabled={quantity <= 1}
+                    className="grid size-8 place-items-center rounded-full bg-[#ece9f8] text-[#3525cd] transition-colors hover:bg-[#e0dcf5] disabled:opacity-40"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <span className="w-8 text-center text-sm font-extrabold text-[#201f31]">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(setQuantity(Math.min(selectedProduct.stock, quantity + 1)))}
+                    disabled={quantity >= selectedProduct.stock}
+                    className="grid size-8 place-items-center rounded-full bg-[#ece9f8] text-[#3525cd] transition-colors hover:bg-[#e0dcf5] disabled:opacity-40"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
                 <p className="text-3xl font-black tracking-tight text-[#242236]">
                   {formatPrice(selectedProduct.price)}
                 </p>
@@ -266,46 +264,6 @@ export default function ProductPage() {
                   </span>
                 )}
               </div>
-
-              <div>
-                <p className="text-[11px] font-extrabold tracking-[0.14em] text-[#6b6787]">
-                  SELECCIONAR ACABADO
-                </p>
-                <div className="mt-2 flex gap-2">
-                  {colorOptions.map((option) => {
-                    const isSelected = selectedColorId === option.id;
-
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        tabIndex={0}
-                        aria-label={`Seleccionar color ${option.label}`}
-                        aria-pressed={isSelected}
-                        onClick={() => handleSelectColor(option.id)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            handleSelectColor(option.id);
-                          }
-                        }}
-                        className={cn(
-                          "grid size-10 place-items-center rounded-full border transition-all",
-                          isSelected
-                            ? "border-[#4f46e5] ring-2 ring-[#4f46e5]/30"
-                            : "border-[#d8d4eb] hover:border-[#b6afe5]",
-                        )}
-                      >
-                        <span
-                          className="size-7 rounded-full"
-                          style={{ backgroundColor: option.value }}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               <div className="hidden md:block">
                 <Button
                   type="button"

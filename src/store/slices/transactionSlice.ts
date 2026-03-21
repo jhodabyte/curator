@@ -46,6 +46,7 @@ export const submitPayment = createAsyncThunk<
       const { billingInfo, cardInfo } = state.checkout;
       const { cardNumber, cvv } = state.transaction;
       const product = state.product.selectedProduct;
+      const quantity = state.product.quantity;
 
       if (!product) {
         return rejectWithValue("No se ha seleccionado un producto");
@@ -54,7 +55,7 @@ export const submitPayment = createAsyncThunk<
       dispatch(setPaymentStatus("creating"));
       const transaction = await api.createTransaction({
         productId: product.id,
-        quantity: 1,
+        quantity,
         customer: {
           name: billingInfo.fullName,
           email: `${billingInfo.fullName.toLowerCase().replace(/\s+/g, ".")}@mail.com`,

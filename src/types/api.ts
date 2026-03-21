@@ -7,6 +7,7 @@ export type Product = {
   price: number;
   stock: number;
   imageUrl?: string;
+  images: string[];
 };
 
 export type CreateTransactionRequest = {

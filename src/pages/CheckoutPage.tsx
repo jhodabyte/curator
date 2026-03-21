@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const selectedProduct = useAppSelector(
     (state) => state.product.selectedProduct,
   );
+  const quantity = useAppSelector((state) => state.product.quantity);
   const { status, error } = useAppSelector((state) => state.transaction);
 
   const isProcessing =
@@ -32,7 +33,7 @@ export default function CheckoutPage() {
     status === "processing" ||
     status === "polling";
 
-  const productAmount = selectedProduct?.price ?? 0;
+  const productAmount = (selectedProduct?.price ?? 0) * quantity;
   const total = productAmount + BASE_FEE + DELIVERY_FEE;
 
   const handleConfirmPayment = async () => {
@@ -100,7 +101,7 @@ export default function CheckoutPage() {
         {selectedProduct && (
           <div className="mt-4 flex items-center gap-3 rounded-[1.5rem] bg-[#ece9f8] p-3">
             <img
-              src={selectedProduct.imageUrl || "/images/imagen-1.png"}
+              src={selectedProduct.images?.[0] || selectedProduct.imageUrl}
               alt={selectedProduct.name}
               className="size-14 rounded-xl object-contain bg-white p-1"
             />
@@ -108,7 +109,7 @@ export default function CheckoutPage() {
               <p className="truncate text-sm font-bold text-[#201f31]">
                 {selectedProduct.name}
               </p>
-              <p className="text-xs text-[#6b6787]">Cantidad: 1</p>
+              <p className="text-xs text-[#6b6787]">Cantidad: {quantity}</p>
             </div>
           </div>
         )}

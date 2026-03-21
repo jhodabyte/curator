@@ -10,7 +10,7 @@ type ProductState = {
   products: Product[];
   selectedProduct: Product | null;
   selectedGalleryId: string;
-  selectedColorId: string;
+  quantity: number;
   loading: boolean;
   error: string | null;
 };
@@ -18,8 +18,8 @@ type ProductState = {
 const initialState: ProductState = {
   products: [],
   selectedProduct: null,
-  selectedGalleryId: "image-1",
-  selectedColorId: "midnight",
+  selectedGalleryId: "0",
+  quantity: 1,
   loading: false,
   error: null,
 };
@@ -45,11 +45,12 @@ const productSlice = createSlice({
     setSelectedGalleryId: (state, action: PayloadAction<string>) => {
       state.selectedGalleryId = action.payload;
     },
-    setSelectedColorId: (state, action: PayloadAction<string>) => {
-      state.selectedColorId = action.payload;
-    },
     setSelectedProduct: (state, action: PayloadAction<Product>) => {
       state.selectedProduct = action.payload;
+      state.quantity = 1;
+    },
+    setQuantity: (state, action: PayloadAction<number>) => {
+      state.quantity = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -72,6 +73,6 @@ const productSlice = createSlice({
   },
 });
 
-export const { setSelectedGalleryId, setSelectedColorId, setSelectedProduct } =
+export const { setSelectedGalleryId, setSelectedProduct, setQuantity } =
   productSlice.actions;
 export default productSlice.reducer;
