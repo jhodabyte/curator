@@ -4,8 +4,10 @@ import { InjectDataSource, TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
+import { CustomersModule } from './customers/customers.module';
+import { TransactionModule } from './transactions/transaction.module';
 import { DataSource } from 'typeorm';
-import { seedProducts } from './products/infraestructure/seed/product.seed';
+import { seedProducts } from './products/infrastructure/seed/product.seed';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { seedProducts } from './products/infraestructure/seed/product.seed';
       inject: [ConfigService],
     }),
     ProductsModule,
+    CustomersModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
