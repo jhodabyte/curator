@@ -1,8 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { InjectDataSource, TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ProductsModule } from './products/products.module';
+import { DataSource } from 'typeorm';
+import { seedProducts } from './products/infraestructure/seed/product.seed';
 
 @Module({
   imports: [
@@ -21,8 +24,15 @@ import { AppService } from './app.service';
       }),
       inject: [ConfigService],
     }),
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+
+  async onApplicationBootstrap(): Promise<void> {
+    await seedProducts(this.dataSource);
+  }
+}
