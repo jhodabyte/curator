@@ -7,8 +7,17 @@ export type BillingInfo = {
   postalCode: string;
 };
 
+export type CardInfo = {
+  cardholderName: string;
+  brand: string;
+  last4: string;
+  expMonth: string;
+  expYear: string;
+};
+
 type CheckoutState = {
   billingInfo: BillingInfo;
+  cardInfo: CardInfo;
 };
 
 const initialState: CheckoutState = {
@@ -17,6 +26,13 @@ const initialState: CheckoutState = {
     street: "",
     city: "",
     postalCode: "",
+  },
+  cardInfo: {
+    cardholderName: "",
+    brand: "",
+    last4: "",
+    expMonth: "",
+    expYear: "",
   },
 };
 
@@ -27,8 +43,11 @@ const checkoutSlice = createSlice({
     setBillingInfo: (state, action: PayloadAction<BillingInfo>) => {
       state.billingInfo = action.payload;
     },
+    setCardInfo: (state, action: PayloadAction<CardInfo>) => {
+      state.cardInfo = action.payload;
+    },
   },
 });
 
-export const { setBillingInfo } = checkoutSlice.actions;
+export const { setBillingInfo, setCardInfo } = checkoutSlice.actions;
 export default checkoutSlice.reducer;

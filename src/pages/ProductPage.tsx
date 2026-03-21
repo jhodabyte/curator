@@ -3,7 +3,7 @@ import { Sparkles, Zap } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 import { Dialog } from "../components/ui/dialog";
-import BillingInfoModal from "../components/billing-info-modal";
+import BillingInfoModal from "../components/checkout/billing-info-modal";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setSelectedGalleryId,
@@ -62,7 +62,9 @@ export default function ProductPage() {
   const selectedGalleryId = useAppSelector(
     (state) => state.product.selectedGalleryId,
   );
-  const selectedColorId = useAppSelector((state) => state.product.selectedColorId);
+  const selectedColorId = useAppSelector(
+    (state) => state.product.selectedColorId,
+  );
   const isBillingOpen = useAppSelector((state) => state.ui.isBillingOpen);
 
   const selectedGallery = useMemo(
