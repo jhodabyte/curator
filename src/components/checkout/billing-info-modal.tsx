@@ -15,6 +15,7 @@ import { Label } from "../ui/label";
 import { cn } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setBillingInfo, setCardInfo } from "../../store/slices/checkoutSlice";
+import { setCardSecrets } from "../../store/slices/transactionSlice";
 import { closeBillingModal } from "../../store/slices/uiSlice";
 import { useNavigate } from "react-router-dom";
 import {
@@ -139,7 +140,13 @@ export default function BillingInfoModal() {
         brand: detectedBrand,
         last4: normalizedCardNumber.slice(-4),
         expMonth,
-        expYear: `20${expYear}`,
+        expYear,
+      }),
+    );
+    dispatch(
+      setCardSecrets({
+        cardNumber: normalizedCardNumber,
+        cvv: data.cvv,
       }),
     );
     dispatch(closeBillingModal());
@@ -163,6 +170,7 @@ export default function BillingInfoModal() {
       digitsOnly.length > 2
         ? `${digitsOnly.slice(0, 2)}/${digitsOnly.slice(2)}`
         : digitsOnly;
+
     setValue("expiry", formattedValue, { shouldValidate: true });
   };
 

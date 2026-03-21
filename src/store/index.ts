@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import productReducer from "./slices/productSlice";
-import uiReducer from "./slices/uiSlice";
-import checkoutReducer from "./slices/checkoutSlice";
+import { rootReducer } from "./rootReducer";
+import { persistMiddleware, loadPersistedState } from "./persistence";
+
+const preloadedState = loadPersistedState();
 
 export const store = configureStore({
-  reducer: {
-    product: productReducer,
-    ui: uiReducer,
-    checkout: checkoutReducer,
-  },
+  reducer: rootReducer,
+  preloadedState,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(persistMiddleware),
 });
 
-export type RootState = ReturnType<typeof store.getState>;
+export type { RootState } from "./rootReducer";
 export type AppDispatch = typeof store.dispatch;

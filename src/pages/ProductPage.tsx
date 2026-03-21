@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Sparkles, Zap } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { Sparkles, Zap, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
 import { Dialog } from "../components/ui/dialog";
@@ -8,8 +8,11 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setSelectedGalleryId,
   setSelectedColorId,
+  setSelectedProduct,
+  fetchProducts,
 } from "../store/slices/productSlice";
 import { openBillingModal, setBillingOpen } from "../store/slices/uiSlice";
+import { formatPrice } from "../lib/format";
 
 type GalleryItem = {
   id: string;
@@ -66,6 +69,15 @@ export default function ProductPage() {
     (state) => state.product.selectedColorId,
   );
   const isBillingOpen = useAppSelector((state) => state.ui.isBillingOpen);
+  const { products, selectedProduct, loading, error } = useAppSelector(
+    (state) => state.product,
+  );
+
+  useEffect(() => {
+    if (products.length === 0) {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, products.length]);
 
   const selectedGallery = useMemo(
     () =>
@@ -84,6 +96,44 @@ export default function ProductPage() {
 
   const handleOpenBilling = () => dispatch(openBillingModal());
 
+  const handleSelectProduct = (product: typeof selectedProduct) => {
+    if (product) dispatch(setSelectedProduct(product));
+  };
+
+  const isOutOfStock = selectedProduct ? selectedProduct.stock <= 0 : false;
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f5ff]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-12 animate-spin text-[#3525cd]" />
+          <p className="text-sm font-semibold text-[#6b6787]">
+            Cargando productos...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f5ff] px-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <AlertCircle className="size-12 text-[#c62828]" />
+          <p className="text-sm font-semibold text-[#c62828]">{error}</p>
+          <Button
+            onClick={() => dispatch(fetchProducts())}
+            className="rounded-full bg-[#3525cd] text-white hover:bg-[#2d20ae]"
+          >
+            Reintentar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedProduct) return null;
+
   return (
     <section className="mx-auto min-h-screen w-full max-w-5xl bg-[#f8f5ff] pb-28 text-[#1f1f2d] md:px-6 md:pb-8">
       <div className="mx-auto max-w-xl px-4 pt-3 md:max-w-4xl md:px-0 md:pt-8">
@@ -97,13 +147,33 @@ export default function ProductPage() {
         </div>
         <div className="mt-2 h-1.5 w-16 rounded-full bg-[#3525cd]" />
 
+        {products.length > 1 && (
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+            {products.map((product) => (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => handleSelectProduct(product)}
+                className={cn(
+                  "shrink-0 rounded-2xl px-4 py-2 text-xs font-bold transition-all",
+                  selectedProduct.id === product.id
+                    ? "bg-[#3525cd] text-white"
+                    : "bg-[#ece9f8] text-[#6b6787] hover:bg-[#e0dcf5]",
+                )}
+              >
+                {product.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mt-5 rounded-4xl p-4 md:mt-8 md:p-6">
           <div className="grid gap-6 md:grid-cols-[1fr_1fr] md:items-start">
             <div>
               <div className="grid place-items-center rounded-3xl p-8 md:p-10 bg-[#efebfa]">
                 <img
-                  src={selectedGallery.src}
-                  alt={selectedGallery.label}
+                  src={selectedProduct.imageUrl || selectedGallery.src}
+                  alt={selectedProduct.name}
                   className="h-[300px] w-[300px] rounded-3xl object-contain p-2 transition-all duration-300"
                 />
               </div>
@@ -171,22 +241,30 @@ export default function ProductPage() {
               </span>
 
               <h1 className="max-w-md text-3xl font-extrabold leading-[1.05] tracking-tight text-[#201f31]">
-                Indigo Horizon Smartwatch
+                {selectedProduct.name}
               </h1>
 
               <p className="max-w-md text-sm leading-relaxed text-[#66627e]">
-                El equilibrio perfecto entre elegancia y tecnología de
-                vanguardia. Diseñado para quienes buscan la sofisticación en
-                cada segundo.
+                {selectedProduct.description}
               </p>
 
               <div className="flex items-center gap-3">
                 <p className="text-3xl font-black tracking-tight text-[#242236]">
-                  $299.00
+                  {formatPrice(selectedProduct.price)}
                 </p>
-                <span className="rounded-full bg-[#ffe7e7] px-3 py-1 text-[10px] font-bold leading-tight text-[#c82d2d]">
-                  ¡SOLO QUEDAN 3 UNIDADES EN STOCK!
-                </span>
+                {selectedProduct.stock > 0 && selectedProduct.stock <= 5 ? (
+                  <span className="rounded-full bg-[#ffe7e7] px-3 py-1 text-[10px] font-bold leading-tight text-[#c82d2d]">
+                    SOLO QUEDAN {selectedProduct.stock} UNIDADES EN STOCK
+                  </span>
+                ) : isOutOfStock ? (
+                  <span className="rounded-full bg-[#ffe7e7] px-3 py-1 text-[10px] font-bold leading-tight text-[#c82d2d]">
+                    AGOTADO
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-[#e8f5e9] px-3 py-1 text-[10px] font-bold leading-tight text-[#2e7d32]">
+                    {selectedProduct.stock} EN STOCK
+                  </span>
+                )}
               </div>
 
               <div>
@@ -232,9 +310,10 @@ export default function ProductPage() {
                 <Button
                   type="button"
                   onClick={handleOpenBilling}
-                  className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae]"
+                  disabled={isOutOfStock}
+                  className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae] disabled:opacity-50"
                 >
-                  Pagar con tarjeta
+                  {isOutOfStock ? "Sin stock disponible" : "Pagar con tarjeta"}
                 </Button>
               </div>
             </div>
@@ -247,9 +326,10 @@ export default function ProductPage() {
           <Button
             type="button"
             onClick={handleOpenBilling}
-            className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae]"
+            disabled={isOutOfStock}
+            className="h-12 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae] disabled:opacity-50"
           >
-            Pagar con tarjeta
+            {isOutOfStock ? "Sin stock disponible" : "Pagar con tarjeta"}
           </Button>
         </div>
       </div>

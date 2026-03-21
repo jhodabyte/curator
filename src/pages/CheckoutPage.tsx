@@ -1,11 +1,51 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft, CreditCard, Truck, X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, CreditCard, Truck, X, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { cn } from "../lib/utils";
-import { useAppSelector } from "../store/hooks";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { submitPayment } from "../store/slices/transactionSlice";
+import { openBillingModal } from "../store/slices/uiSlice";
+import { formatPrice } from "../lib/format";
+
+const BASE_FEE = 5000;
+const DELIVERY_FEE = 10000;
+
+const statusLabels: Record<string, string> = {
+  creating: "Creando transacción...",
+  tokenizing: "Validando tarjeta...",
+  processing: "Procesando pago...",
+  polling: "Esperando confirmación...",
+};
 
 export default function CheckoutPage() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { billingInfo, cardInfo } = useAppSelector((state) => state.checkout);
+  const selectedProduct = useAppSelector(
+    (state) => state.product.selectedProduct,
+  );
+  const { status, error } = useAppSelector((state) => state.transaction);
+
+  const isProcessing =
+    status === "creating" ||
+    status === "tokenizing" ||
+    status === "processing" ||
+    status === "polling";
+
+  const productAmount = selectedProduct?.price ?? 0;
+  const total = productAmount + BASE_FEE + DELIVERY_FEE;
+
+  const handleConfirmPayment = async () => {
+    const result = await dispatch(submitPayment());
+    if (submitPayment.fulfilled.match(result)) {
+      navigate(`/status/${result.payload.id}`);
+    }
+  };
+
+  const handleChangeBilling = () => {
+    navigate("/");
+    setTimeout(() => dispatch(openBillingModal()), 100);
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f5ff] pb-10 text-[#1f1f2d]">
@@ -36,10 +76,10 @@ export default function CheckoutPage() {
       <div className="mx-auto max-w-xl px-4 pt-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[10px] font-bold tracking-[0.18em] text-[#6b6787]">
-            STEP 3 OF 5
+            PASO 3 DE 5
           </p>
           <p className="text-[10px] font-extrabold tracking-[0.12em] text-[#3525cd]">
-            Summary
+            RESUMEN
           </p>
         </div>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#e4e0f0]">
@@ -51,16 +91,46 @@ export default function CheckoutPage() {
         </div>
 
         <h1 className="mt-6 text-2xl font-extrabold leading-tight tracking-tight text-[#201f31]">
-          Review your order
+          Revisa tu pedido
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-[#6b6787]">
-          One final look before we curate your selection.
+          Un último vistazo antes de confirmar tu selección.
         </p>
 
-        <div className="mt-6 rounded-[1.75rem] bg-white p-5 shadow-sm">
+        {selectedProduct && (
+          <div className="mt-4 flex items-center gap-3 rounded-[1.5rem] bg-[#ece9f8] p-3">
+            <img
+              src={selectedProduct.imageUrl || "/images/imagen-1.png"}
+              alt={selectedProduct.name}
+              className="size-14 rounded-xl object-contain bg-white p-1"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-[#201f31]">
+                {selectedProduct.name}
+              </p>
+              <p className="text-xs text-[#6b6787]">Cantidad: 1</p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 rounded-[1.75rem] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-[#6b6787]">Subtotal</span>
-            <span className="font-bold text-[#201f31]">$299.00</span>
+            <span className="text-[#6b6787]">Producto</span>
+            <span className="font-bold text-[#201f31]">
+              {formatPrice(productAmount)}
+            </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+            <span className="text-[#6b6787]">Tarifa base</span>
+            <span className="font-bold text-[#201f31]">
+              {formatPrice(BASE_FEE)}
+            </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+            <span className="text-[#6b6787]">Envío</span>
+            <span className="font-bold text-[#201f31]">
+              {formatPrice(DELIVERY_FEE)}
+            </span>
           </div>
           <div
             className="my-4 border-t border-dotted border-[#d5d0e5]"
@@ -71,7 +141,7 @@ export default function CheckoutPage() {
               Total
             </span>
             <span className="text-xl font-extrabold tracking-tight text-[#3525cd]">
-              $314.00
+              {formatPrice(total)}
             </span>
           </div>
         </div>
@@ -86,7 +156,7 @@ export default function CheckoutPage() {
               />
             </div>
             <span className="text-[10px] font-extrabold tracking-[0.14em] text-[#3525cd]">
-              SHIPPING
+              ENVÍO
             </span>
           </div>
           <p className="mt-3 text-sm font-bold leading-snug text-[#201f31]">
@@ -94,9 +164,10 @@ export default function CheckoutPage() {
           </p>
           <button
             type="button"
+            onClick={handleChangeBilling}
             className="mt-3 text-[10px] font-extrabold tracking-[0.14em] text-[#3525cd] underline-offset-2 hover:underline"
           >
-            CHANGE
+            CAMBIAR
           </button>
         </div>
 
@@ -110,7 +181,7 @@ export default function CheckoutPage() {
               />
             </div>
             <span className="text-[10px] font-extrabold tracking-[0.14em] text-[#3525cd]">
-              PAYMENT
+              PAGO
             </span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -120,7 +191,7 @@ export default function CheckoutPage() {
                 "text-[9px] font-extrabold tracking-[0.08em] text-white",
               )}
             >
-              VISA
+              {cardInfo.brand || "CARD"}
             </span>
             <span className="text-sm font-semibold tracking-wide text-[#201f31]">
               •••• •••• •••• {cardInfo.last4}
@@ -128,17 +199,33 @@ export default function CheckoutPage() {
           </div>
           <button
             type="button"
+            onClick={handleChangeBilling}
             className="mt-3 text-[10px] font-extrabold tracking-[0.14em] text-[#3525cd] underline-offset-2 hover:underline"
           >
-            CHANGE
+            CAMBIAR
           </button>
         </div>
 
+        {error && (
+          <div className="mt-4 rounded-2xl bg-[#ffeaea] p-4 text-sm text-[#c62828]">
+            {error}
+          </div>
+        )}
+
         <Button
           type="button"
-          className="mt-8 h-14 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae]"
+          onClick={handleConfirmPayment}
+          disabled={isProcessing}
+          className="mt-8 h-14 w-full rounded-full bg-[#3525cd] text-base font-semibold text-white hover:bg-[#2d20ae] disabled:opacity-70"
         >
-          Confirmar pago
+          {isProcessing ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="size-5 animate-spin" />
+              {statusLabels[status] ?? "Procesando..."}
+            </span>
+          ) : (
+            "Confirmar pago"
+          )}
         </Button>
       </div>
     </div>
