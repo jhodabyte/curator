@@ -2,14 +2,14 @@ import { ProductResponseDto } from './product-response.dto';
 import { Product } from 'src/products/domain/product.entity';
 
 describe('ProductResponseDto', () => {
-  it('should map domain product to response DTO', () => {
+  it('should map domain product to response DTO with images', () => {
     const product = new Product({
       id: '1',
       name: 'Laptop',
       description: 'A laptop',
       price: 2500000,
       stock: 10,
-      imageUrl: 'http://img.com/laptop.png',
+      images: ['http://img.com/a.png', 'http://img.com/b.png'],
     });
 
     const dto = ProductResponseDto.fromDomain(product);
@@ -19,10 +19,10 @@ describe('ProductResponseDto', () => {
     expect(dto.description).toBe('A laptop');
     expect(dto.price).toBe(2500000);
     expect(dto.stock).toBe(10);
-    expect(dto.imageUrl).toBe('http://img.com/laptop.png');
+    expect(dto.images).toEqual(['http://img.com/a.png', 'http://img.com/b.png']);
   });
 
-  it('should handle undefined imageUrl', () => {
+  it('should default images to empty array', () => {
     const product = new Product({
       id: '1',
       name: 'Laptop',
@@ -33,6 +33,6 @@ describe('ProductResponseDto', () => {
 
     const dto = ProductResponseDto.fromDomain(product);
 
-    expect(dto.imageUrl).toBeUndefined();
+    expect(dto.images).toEqual([]);
   });
 });

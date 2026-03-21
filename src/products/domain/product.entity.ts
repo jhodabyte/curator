@@ -4,7 +4,7 @@ export interface ProductProps {
   description: string;
   price: number;
   stock: number;
-  imageUrl?: string;
+  images?: string[];
 }
 
 export class Product {
@@ -13,7 +13,7 @@ export class Product {
   readonly description: string;
   readonly price: number;
   private _stock: number;
-  readonly imageUrl?: string;
+  readonly images: string[];
 
   constructor(props: ProductProps) {
     this.id = props.id;
@@ -21,7 +21,7 @@ export class Product {
     this.description = props.description;
     this.price = props.price;
     this._stock = props.stock;
-    this.imageUrl = props.imageUrl;
+    this.images = props.images ?? [];
   }
 
   get stock(): number {

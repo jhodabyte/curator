@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { type ProductRepository } from 'src/products/domain/product.repository';
 import { ProductOrmEntity } from './product.orm-entity';
+import { ProductImageOrmEntity } from './product-image.orm-entity';
 import { Repository } from 'typeorm';
 import { Product } from 'src/products/domain/product.entity';
 
@@ -27,7 +28,11 @@ export class TypeOrmProductRepository implements ProductRepository {
   }
 
   private toDomain(entity: ProductOrmEntity): Product {
-    return new Product({ ...entity, price: Number(entity.price) });
+    return new Product({
+      ...entity,
+      price: Number(entity.price),
+      images: (entity.images ?? []).map((img) => img.url),
+    });
   }
 
   private toOrmEntity(product: Product): ProductOrmEntity {
@@ -37,7 +42,11 @@ export class TypeOrmProductRepository implements ProductRepository {
     entity.description = product.description;
     entity.price = product.price;
     entity.stock = product.stock;
-    entity.imageUrl = product.imageUrl;
+    entity.images = product.images.map((url) => {
+      const img = new ProductImageOrmEntity();
+      img.url = url;
+      return img;
+    });
     return entity;
   }
 }

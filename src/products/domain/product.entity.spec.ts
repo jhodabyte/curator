@@ -57,11 +57,19 @@ describe('Product', () => {
     expect(() => product.decrementStock()).toThrow('No hay stock disponible');
   });
 
-  it('should handle optional imageUrl', () => {
-    const withImage = createProduct({ imageUrl: 'http://img.com/test.png' });
-    const withoutImage = createProduct();
+  it('should default images to empty array when not provided', () => {
+    const product = createProduct();
 
-    expect(withImage.imageUrl).toBe('http://img.com/test.png');
-    expect(withoutImage.imageUrl).toBeUndefined();
+    expect(product.images).toEqual([]);
+  });
+
+  it('should store provided images', () => {
+    const product = createProduct({
+      images: ['http://img.com/a.png', 'http://img.com/b.png'],
+    });
+
+    expect(product.images).toHaveLength(2);
+    expect(product.images[0]).toBe('http://img.com/a.png');
+    expect(product.images[1]).toBe('http://img.com/b.png');
   });
 });

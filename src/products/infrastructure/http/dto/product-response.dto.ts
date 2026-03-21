@@ -6,7 +6,7 @@ export class ProductResponseDto {
   description: string;
   price: number;
   stock: number;
-  imageUrl?: string;
+  images: string[];
 
   static fromDomain(product: Product): ProductResponseDto {
     const dto = new ProductResponseDto();
@@ -15,7 +15,7 @@ export class ProductResponseDto {
     dto.description = product.description;
     dto.price = product.price;
     dto.stock = product.stock;
-    dto.imageUrl = product.imageUrl;
+    dto.images = product.images;
     return dto;
   }
 }

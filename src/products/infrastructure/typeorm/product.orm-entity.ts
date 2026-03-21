@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ProductImageOrmEntity } from './product-image.orm-entity';
 
 @Entity('products')
 export class ProductOrmEntity {
@@ -17,6 +18,9 @@ export class ProductOrmEntity {
   @Column({ type: 'int', default: 0 })
   stock: number;
 
-  @Column({ nullable: true })
-  imageUrl?: string;
+  @OneToMany(() => ProductImageOrmEntity, (image) => image.product, {
+    cascade: true,
+    eager: true,
+  })
+  images: ProductImageOrmEntity[];
 }
