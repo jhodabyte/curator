@@ -145,6 +145,7 @@ export default function ProductPage() {
                 <img
                   src={selectedImageSrc}
                   alt={selectedProduct.name}
+                  loading="lazy"
                   className="h-[300px] w-[300px] rounded-3xl object-contain p-2 transition-all duration-300"
                 />
               </div>
@@ -178,6 +179,7 @@ export default function ProductPage() {
                         <img
                           src={src}
                           alt={`Vista ${index + 1}`}
+                          loading="lazy"
                           className="size-8 rounded-full object-cover md:size-9"
                         />
                       </button>

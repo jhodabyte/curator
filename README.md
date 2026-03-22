@@ -96,14 +96,53 @@ Con el API en ejecución:
 
 **Postman:** _Import_ → _Link_ → pega `http://localhost:3000/api/docs-json` (con el servidor arrancado).
 
-## Modelo de datos (resumen)
+## Modelo de datos
 
-- **Product:** identificador, nombre, descripción, precio, stock, imágenes. Se siembra al arranque; no hay endpoint de alta de productos.
-- **Customer:** nombre, email, teléfono; se crea en el flujo al registrar una transacción.
-- **Transaction:** vínculo a cliente y producto, cantidades, montos (producto, tarifa base, envío, total), estado (`pending` / `completed` / `failed`), id externo del cobro.
-- **Delivery:** vínculo a transacción, dirección, ciudad, cantidad, estado logístico.
+```
+┌──────────────────────┐       ┌──────────────────────┐
+│      products        │       │   product_images     │
+├──────────────────────┤       ├──────────────────────┤
+│ id          UUID  PK │──┐    │ id          UUID  PK │
+│ name        VARCHAR  │  └───<│ product_id  UUID  FK │
+│ description TEXT     │       │ url         VARCHAR  │
+│ price       DECIMAL  │       └──────────────────────┘
+│ stock       INT      │
+└──────────────────────┘
 
-Una transacción genera un cliente (si aplica el flujo), descuenta stock al completar el pago y crea un registro de envío.
+┌──────────────────────┐
+│     customers        │
+├──────────────────────┤
+│ id          UUID  PK │
+│ name        VARCHAR  │
+│ email       VARCHAR  │ UNIQUE
+│ phone       VARCHAR  │
+└──────────────────────┘
+
+┌──────────────────────────┐       ┌──────────────────────────┐
+│      transactions        │       │       deliveries         │
+├──────────────────────────┤       ├──────────────────────────┤
+│ id              UUID  PK │──┐    │ id              UUID  PK │
+│ customerId      UUID  FK │  └───<│ transactionId   UUID  FK │
+│ productId       UUID  FK │       │ customerId      UUID  FK │
+│ quantity        INT      │       │ productId       UUID  FK │
+│ productAmount   DECIMAL  │       │ quantity        INT      │
+│ baseFee         INT      │       │ address         VARCHAR  │
+│ deliveryFee     INT      │       │ city            VARCHAR  │
+│ totalAmount     INT      │       │ status          VARCHAR  │
+│ status          VARCHAR  │       │ createdAt       TIMESTAMP│
+│ wompiTransactionId VARCHAR│       └──────────────────────────┘
+│ createdAt       TIMESTAMP│
+└──────────────────────────┘
+```
+
+**Relaciones:**
+
+- `Product` 1 ──< N `ProductImage` (cascade, eager)
+- `Transaction` N >── 1 `Customer` (via customerId)
+- `Transaction` N >── 1 `Product` (via productId)
+- `Delivery` N >── 1 `Transaction` (via transactionId)
+
+La base se siembra con productos al arranque. Una transacción crea un cliente (si no existe), descuenta stock al completar el pago y genera un registro de envío.
 
 ## Endpoints principales
 
@@ -143,6 +182,16 @@ cd web && npm run test:cov
 
 - Test Suites: 14 passed
 - Tests: 106 passed
+
+## Deploy
+
+| Recurso | URL |
+|---------|-----|
+| Frontend (CloudFront) | https://d3ekvok01q9z8.cloudfront.net |
+| API (ALB) | http://Curato-Curat-jxKrHIXUjwIa-1272609790.us-east-1.elb.amazonaws.com |
+| Swagger UI | http://Curato-Curat-jxKrHIXUjwIa-1272609790.us-east-1.elb.amazonaws.com/api/docs |
+
+Infraestructura desplegada en AWS con CDK: ECS Fargate, ALB, RDS PostgreSQL, S3 + CloudFront.
 
 ## Licencia
 

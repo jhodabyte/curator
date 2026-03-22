@@ -125,6 +125,7 @@ export default function CheckoutPage() {
               <img
                 src={selectedProduct.images?.[0] || selectedProduct.imageUrl}
                 alt={selectedProduct.name}
+                loading="lazy"
                 className="size-16 shrink-0 rounded-xl object-contain bg-white p-1 sm:size-[4.5rem]"
               />
               <div className="min-w-0 flex-1">
