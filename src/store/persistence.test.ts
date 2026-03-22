@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadPersistedState, clearPersistedState, persistMiddleware } from "./persistence";
 
 const STORAGE_KEY = "curator_checkout_state";
@@ -6,7 +5,7 @@ const STORAGE_KEY = "curator_checkout_state";
 describe("persistence", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe("loadPersistedState", () => {
@@ -92,7 +91,7 @@ describe("persistence", () => {
       };
 
       const store = { getState: () => mockState };
-      const next = vi.fn((action) => action);
+      const next = jest.fn((action) => action);
       const action = { type: "test/action" };
 
       const middleware = persistMiddleware(store as never)(next);

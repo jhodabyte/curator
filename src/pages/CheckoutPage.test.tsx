@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import CheckoutPage from "./CheckoutPage";
 import { renderWithProviders } from "../test/test-utils";
@@ -47,7 +46,7 @@ const defaultState = {
 
 describe("CheckoutPage", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("renders step indicator", () => {

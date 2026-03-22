@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PaymentStatusPage from "./PaymentStatusPage";
@@ -26,7 +25,7 @@ const failedTransaction: TransactionResponse = {
 
 describe("PaymentStatusPage", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("shows loading state when no transaction", () => {

@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import reducer, {
   setSelectedGalleryId,
   setSelectedProduct,
@@ -49,7 +48,7 @@ describe("productSlice", () => {
 
   describe("fetchProducts thunk", () => {
     beforeEach(() => {
-      vi.restoreAllMocks();
+      jest.restoreAllMocks();
     });
 
     it("sets loading true on pending", () => {
@@ -103,7 +102,7 @@ describe("productSlice", () => {
     });
 
     it("dispatches fetch and populates store", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockProducts),
       } as Response);

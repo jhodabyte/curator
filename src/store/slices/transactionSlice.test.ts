@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import reducer, {
   setCurrentStep,
   setTransaction,
@@ -120,7 +119,7 @@ describe("transactionSlice", () => {
 
   describe("fetchTransaction thunk", () => {
     beforeEach(() => {
-      vi.restoreAllMocks();
+      jest.restoreAllMocks();
     });
 
     it("sets transaction on fulfilled", () => {
@@ -141,7 +140,7 @@ describe("transactionSlice", () => {
     });
 
     it("dispatches fetch and populates store", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockTransaction),
       } as Response);

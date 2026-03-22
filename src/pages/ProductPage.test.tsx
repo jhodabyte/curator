@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ProductPage from "./ProductPage";
@@ -35,11 +34,11 @@ const productStateBase = {
 
 describe("ProductPage", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   it("shows loading state initially when no products", () => {
-    vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
+    jest.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
     renderWithProviders(<ProductPage />);
     expect(screen.getByText("Cargando productos...")).toBeInTheDocument();
   });

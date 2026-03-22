@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   getProducts,
   createTransaction,
@@ -10,7 +9,7 @@ import {
 
 describe("api service", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe("getProducts", () => {
@@ -18,7 +17,7 @@ describe("api service", () => {
       const mockProducts = [
         { id: "1", name: "Laptop", description: "Nice", price: 100, stock: 5 },
       ];
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockProducts),
       } as Response);
@@ -32,7 +31,7 @@ describe("api service", () => {
     });
 
     it("throws on error response", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () => Promise.resolve({ message: "Server error" }),
@@ -49,7 +48,7 @@ describe("api service", () => {
         status: "pending",
         totalAmount: 100,
       };
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       } as Response);
@@ -72,7 +71,7 @@ describe("api service", () => {
   describe("getTransaction", () => {
     it("fetches a transaction by id", async () => {
       const mockResponse = { id: "tx-1", status: "completed" };
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       } as Response);
@@ -89,7 +88,7 @@ describe("api service", () => {
   describe("processPayment", () => {
     it("posts payment data to correct endpoint", async () => {
       const mockResponse = { id: "tx-1", status: "completed" };
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       } as Response);
@@ -113,7 +112,7 @@ describe("api service", () => {
         status: "CREATED",
         data: { id: "tok-123", brand: "VISA", last_four: "4242" },
       };
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       } as Response);
@@ -141,7 +140,7 @@ describe("api service", () => {
 
   describe("getAcceptanceToken", () => {
     it("returns the acceptance token", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: true,
         json: () =>
           Promise.resolve({
@@ -162,7 +161,7 @@ describe("api service", () => {
 
   describe("error handling", () => {
     it("falls back to status code message when no message in body", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: false,
         status: 404,
         json: () => Promise.resolve({}),
@@ -174,7 +173,7 @@ describe("api service", () => {
     });
 
     it("handles json parse failure in error response", async () => {
-      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      jest.spyOn(globalThis, "fetch").mockResolvedValueOnce({
         ok: false,
         status: 500,
         json: () => Promise.reject(new Error("bad json")),
