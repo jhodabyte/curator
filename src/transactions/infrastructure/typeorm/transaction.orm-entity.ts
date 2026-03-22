@@ -32,7 +32,11 @@ export class TransactionOrmEntity {
   @Column()
   totalAmount: number;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 24,
+    default: TransactionStatus.PENDING,
+  })
   status: TransactionStatus;
 
   @Column({ nullable: true })
