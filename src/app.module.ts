@@ -24,6 +24,10 @@ import { seedProducts } from './products/infrastructure/seed/product.seed';
         database: config.get<string>('DB_NAME', 'curator'),
         autoLoadEntities: true,
         synchronize: true,
+        ssl:
+          config.get<string>('NODE_ENV') === 'production'
+            ? { rejectUnauthorized: false }
+            : false,
       }),
       inject: [ConfigService],
     }),

@@ -8,6 +8,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors();
+  app.setGlobalPrefix('api', { exclude: [] });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Curator API')
