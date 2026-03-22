@@ -22,7 +22,6 @@ export default function PaymentStatusPage() {
   }, [transactionId, transaction, dispatch]);
 
   const isCompleted = transaction?.status === "completed";
-  const isFailed = transaction?.status === "failed";
   const isPending = !transaction || transaction.status === "pending";
 
   const handleBackToProducts = () => {
