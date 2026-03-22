@@ -62,9 +62,19 @@ const productSlice = createSlice({
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.products = action.payload;
         state.loading = false;
-        if (action.payload.length > 0 && !state.selectedProduct) {
-          state.selectedProduct = action.payload[0];
+        if (action.payload.length === 0) {
+          return;
         }
+        if (state.selectedProduct) {
+          const match = action.payload.find(
+            (item) => item.id === state.selectedProduct!.id,
+          );
+          if (match) {
+            state.selectedProduct = match;
+          }
+          return;
+        }
+        state.selectedProduct = action.payload[0];
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;

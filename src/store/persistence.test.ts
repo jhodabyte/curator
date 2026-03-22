@@ -74,6 +74,21 @@ describe("persistence", () => {
           transactionId: "tx-abc",
           status: "idle",
         },
+        product: {
+          products: [],
+          selectedProduct: {
+            id: "p1",
+            name: "Item",
+            description: "Desc",
+            price: 1000,
+            stock: 5,
+            images: [],
+          },
+          quantity: 2,
+          selectedGalleryId: "1",
+          loading: false,
+          error: null,
+        },
       };
 
       const store = { getState: () => mockState };
@@ -89,6 +104,49 @@ describe("persistence", () => {
       expect(stored.checkout.billingInfo.fullName).toBe("Jane");
       expect(stored.transaction.transactionId).toBe("tx-abc");
       expect(stored.transaction.currentStep).toBe(2);
+      expect(stored.product.quantity).toBe(2);
+      expect(stored.product.selectedProduct?.id).toBe("p1");
     });
+  });
+
+  it("loadPersistedState restores product selection", () => {
+    const persisted = {
+      checkout: {
+        billingInfo: {
+          fullName: "John",
+          street: "Calle 1",
+          city: "Bogotá",
+          postalCode: "110111",
+        },
+        cardInfo: {
+          cardholderName: "John",
+          brand: "VISA",
+          last4: "4242",
+          expMonth: "12",
+          expYear: "2028",
+        },
+      },
+      transaction: {
+        currentStep: 2,
+        transactionId: null,
+        status: "idle",
+      },
+      product: {
+        selectedProduct: {
+          id: "p99",
+          name: "Watch",
+          description: "Smart",
+          price: 50000,
+          stock: 3,
+          images: ["/w.png"],
+        },
+        quantity: 2,
+        selectedGalleryId: "0",
+      },
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
+    const result = loadPersistedState();
+    expect(result?.product?.quantity).toBe(2);
+    expect(result?.product?.selectedProduct?.id).toBe("p99");
   });
 });

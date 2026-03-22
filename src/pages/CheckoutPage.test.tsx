@@ -27,9 +27,10 @@ const defaultState = {
       description: "Laptop",
       price: 2500000,
       stock: 10,
+      images: [],
     },
-    selectedGalleryId: "image-1",
-    selectedColorId: "midnight",
+    selectedGalleryId: "0",
+    quantity: 1,
     loading: false,
     error: null,
   },
@@ -52,6 +53,7 @@ describe("CheckoutPage", () => {
   it("renders step indicator", () => {
     renderWithProviders(<CheckoutPage />, { preloadedState: defaultState });
     expect(screen.getByText("PASO 3 DE 5")).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Revisa tu pedido" })).toBeInTheDocument();
   });
 
   it("displays product amount, base fee, delivery fee, and total", () => {
@@ -70,7 +72,7 @@ describe("CheckoutPage", () => {
 
   it("displays card brand and last 4 digits", () => {
     renderWithProviders(<CheckoutPage />, { preloadedState: defaultState });
-    expect(screen.getByText("VISA")).toBeInTheDocument();
+    expect(screen.getByLabelText("Visa")).toBeInTheDocument();
     expect(screen.getByText("•••• •••• •••• 4242")).toBeInTheDocument();
   });
 

@@ -23,6 +23,7 @@ import {
   formatCardNumberInput,
   getMaxCardDigits,
 } from "../../lib/validations";
+import { CardBrandMark } from "./card-brand-mark";
 
 const inputClassName =
   "h-12 rounded-2xl border-0 bg-[#f3f0ff] px-4 text-base text-[#1f1f2d] shadow-none placeholder:text-[#9b96b0] focus-visible:ring-2 focus-visible:ring-[#3525cd]/30";
@@ -84,7 +85,7 @@ const billingSchema = z.object({
     .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Formato inválido. Usa MM/YY")
     .refine(
       (value) => isValidExpiry(value),
-      "La fecha de expiración no es válida",
+      "La fecha de expiración no es válida"
     ),
   cvv: z.string().regex(/^\d{3,4}$/, "El CVV debe tener 3 o 4 dígitos"),
 });
@@ -132,7 +133,7 @@ export default function BillingInfoModal() {
         street: data.street,
         city: data.city,
         postalCode: data.postalCode,
-      }),
+      })
     );
     dispatch(
       setCardInfo({
@@ -141,13 +142,13 @@ export default function BillingInfoModal() {
         last4: normalizedCardNumber.slice(-4),
         expMonth,
         expYear,
-      }),
+      })
     );
     dispatch(
       setCardSecrets({
         cardNumber: normalizedCardNumber,
         cvv: data.cvv,
-      }),
+      })
     );
     dispatch(closeBillingModal());
     navigate("/checkout");
@@ -184,7 +185,7 @@ export default function BillingInfoModal() {
       showCloseButton
       className={cn(
         "max-h-[min(90dvh,calc(100dvh-2rem))] gap-0 overflow-y-auto rounded-[1.75rem] border-0 p-0 shadow-lg sm:max-w-md",
-        "[&_[data-slot=dialog-close]]:top-4 [&_[data-slot=dialog-close]]:right-4 [&_[data-slot=dialog-close]]:text-[#9b96b0] hover:[&_[data-slot=dialog-close]]:text-[#6b6787]",
+        "[&_[data-slot=dialog-close]]:top-4 [&_[data-slot=dialog-close]]:right-4 [&_[data-slot=dialog-close]]:text-[#9b96b0] hover:[&_[data-slot=dialog-close]]:text-[#6b6787]"
       )}
     >
       <div className="px-5 pb-6 pt-5">
@@ -225,7 +226,7 @@ export default function BillingInfoModal() {
                 aria-invalid={!!errors.fullName}
                 className={cn(
                   inputClassName,
-                  errors.fullName && "ring-2 ring-destructive/30",
+                  errors.fullName && "ring-2 ring-destructive/30"
                 )}
                 {...register("fullName")}
               />
@@ -260,7 +261,7 @@ export default function BillingInfoModal() {
                 aria-invalid={!!errors.cardholderName}
                 className={cn(
                   inputClassName,
-                  errors.cardholderName && "ring-2 ring-destructive/30",
+                  errors.cardholderName && "ring-2 ring-destructive/30"
                 )}
                 {...register("cardholderName")}
               />
@@ -274,27 +275,30 @@ export default function BillingInfoModal() {
               <Label htmlFor="card-number" className={labelClassName}>
                 NUMERO DE TARJETA
               </Label>
-              <Input
-                id="card-number"
-                autoComplete="cc-number"
-                inputMode="numeric"
-                maxLength={19}
-                placeholder="4242 4242 4242 4242"
-                aria-invalid={!!errors.cardNumber}
-                className={cn(
-                  inputClassName,
-                  errors.cardNumber && "ring-2 ring-destructive/30",
-                )}
-                {...register("cardNumber", {
-                  onChange: (event) =>
-                    handleCardNumberChange(event.target.value),
-                })}
-              />
-              {detectedBrand && (
-                <p className="text-[11px] font-semibold text-[#4b3fb9]">
-                  Marca detectada: {detectedBrand}
-                </p>
-              )}
+              <div className="relative">
+                <Input
+                  id="card-number"
+                  autoComplete="cc-number"
+                  inputMode="numeric"
+                  maxLength={19}
+                  placeholder="4242 4242 4242 4242"
+                  aria-invalid={!!errors.cardNumber}
+                  className={cn(
+                    inputClassName,
+                    errors.cardNumber && "ring-2 ring-destructive/30",
+                    detectedBrand && "pr-[4.25rem] sm:pr-[4.5rem]",
+                  )}
+                  {...register("cardNumber", {
+                    onChange: (event) =>
+                      handleCardNumberChange(event.target.value),
+                  })}
+                />
+                {detectedBrand ? (
+                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <CardBrandMark brand={detectedBrand} />
+                  </div>
+                ) : null}
+              </div>
               {errors.cardNumber && (
                 <p className="text-xs text-destructive">
                   {errors.cardNumber.message}
@@ -315,7 +319,7 @@ export default function BillingInfoModal() {
                   aria-invalid={!!errors.expiry}
                   className={cn(
                     inputClassName,
-                    errors.expiry && "ring-2 ring-destructive/30",
+                    errors.expiry && "ring-2 ring-destructive/30"
                   )}
                   {...register("expiry", {
                     onChange: (event) => handleExpiryChange(event.target.value),
@@ -340,7 +344,7 @@ export default function BillingInfoModal() {
                   aria-invalid={!!errors.cvv}
                   className={cn(
                     inputClassName,
-                    errors.cvv && "ring-2 ring-destructive/30",
+                    errors.cvv && "ring-2 ring-destructive/30"
                   )}
                   {...register("cvv", {
                     onChange: (event) => handleCvvChange(event.target.value),
@@ -380,7 +384,7 @@ export default function BillingInfoModal() {
                   aria-invalid={!!errors.street}
                   className={cn(
                     inputClassName,
-                    errors.street && "ring-2 ring-destructive/30",
+                    errors.street && "ring-2 ring-destructive/30"
                   )}
                   {...register("street")}
                 />
@@ -401,7 +405,7 @@ export default function BillingInfoModal() {
                   aria-invalid={!!errors.city}
                   className={cn(
                     inputClassName,
-                    errors.city && "ring-2 ring-destructive/30",
+                    errors.city && "ring-2 ring-destructive/30"
                   )}
                   {...register("city")}
                 />
@@ -423,7 +427,7 @@ export default function BillingInfoModal() {
                   aria-invalid={!!errors.postalCode}
                   className={cn(
                     inputClassName,
-                    errors.postalCode && "ring-2 ring-destructive/30",
+                    errors.postalCode && "ring-2 ring-destructive/30"
                   )}
                   {...register("postalCode")}
                 />

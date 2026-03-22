@@ -10,6 +10,11 @@ type PersistedState = {
     transactionId: string | null;
     status: string;
   };
+  product?: {
+    selectedProduct: RootState["product"]["selectedProduct"];
+    quantity: number;
+    selectedGalleryId: string;
+  };
 };
 
 export function loadPersistedState(): Partial<RootState> | undefined {
@@ -19,7 +24,7 @@ export function loadPersistedState(): Partial<RootState> | undefined {
 
     const persisted = JSON.parse(raw) as PersistedState;
 
-    return {
+    const base: Partial<RootState> = {
       checkout: persisted.checkout,
       transaction: {
         currentStep: persisted.transaction.currentStep,
@@ -31,6 +36,19 @@ export function loadPersistedState(): Partial<RootState> | undefined {
         cvv: "",
       },
     };
+
+    if (persisted.product) {
+      base.product = {
+        products: [],
+        selectedProduct: persisted.product.selectedProduct,
+        quantity: persisted.product.quantity,
+        selectedGalleryId: persisted.product.selectedGalleryId,
+        loading: false,
+        error: null,
+      };
+    }
+
+    return base;
   } catch {
     return undefined;
   }
@@ -47,6 +65,11 @@ export const persistMiddleware: Middleware = (store) => (next) => (action) => {
         currentStep: state.transaction.currentStep,
         transactionId: state.transaction.transactionId,
         status: state.transaction.status,
+      },
+      product: {
+        selectedProduct: state.product.selectedProduct,
+        quantity: state.product.quantity,
+        selectedGalleryId: state.product.selectedGalleryId,
       },
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toPersist));

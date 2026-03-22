@@ -11,6 +11,7 @@ const mockProduct: Product = {
   description: "High performance laptop",
   price: 2500000,
   stock: 10,
+  images: ["/img-a.png"],
 };
 
 const mockProductLowStock: Product = {
@@ -21,6 +22,15 @@ const mockProductLowStock: Product = {
 const mockProductOutOfStock: Product = {
   ...mockProduct,
   stock: 0,
+};
+
+const productStateBase = {
+  products: [mockProduct],
+  selectedProduct: mockProduct,
+  selectedGalleryId: "0",
+  quantity: 1,
+  loading: false,
+  error: null,
 };
 
 describe("ProductPage", () => {
@@ -37,14 +47,7 @@ describe("ProductPage", () => {
   it("displays product name and description", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
-        product: {
-          products: [mockProduct],
-          selectedProduct: mockProduct,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
-        },
+        product: productStateBase,
       },
     });
 
@@ -57,14 +60,7 @@ describe("ProductPage", () => {
   it("displays product price formatted", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
-        product: {
-          products: [mockProduct],
-          selectedProduct: mockProduct,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
-        },
+        product: productStateBase,
       },
     });
 
@@ -75,12 +71,9 @@ describe("ProductPage", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
         product: {
+          ...productStateBase,
           products: [mockProductLowStock],
           selectedProduct: mockProductLowStock,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
         },
       },
     });
@@ -94,12 +87,9 @@ describe("ProductPage", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
         product: {
+          ...productStateBase,
           products: [mockProductOutOfStock],
           selectedProduct: mockProductOutOfStock,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
         },
       },
     });
@@ -116,10 +106,10 @@ describe("ProductPage", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
         product: {
-          products: ["placeholder" as never],
+          products: [mockProduct],
           selectedProduct: null,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
+          selectedGalleryId: "0",
+          quantity: 1,
           loading: false,
           error: "Network error",
         },
@@ -133,38 +123,32 @@ describe("ProductPage", () => {
   it("shows stock count when stock > 5", () => {
     renderWithProviders(<ProductPage />, {
       preloadedState: {
-        product: {
-          products: [mockProduct],
-          selectedProduct: mockProduct,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
-        },
+        product: productStateBase,
       },
     });
 
     expect(screen.getByText("10 EN STOCK")).toBeInTheDocument();
   });
 
-  it("allows selecting color options", async () => {
+  it("allows selecting gallery thumbnail", async () => {
     const user = userEvent.setup();
+    const multiImageProduct: Product = {
+      ...mockProduct,
+      images: ["/a.png", "/b.png"],
+    };
     const { store } = renderWithProviders(<ProductPage />, {
       preloadedState: {
         product: {
-          products: [mockProduct],
-          selectedProduct: mockProduct,
-          selectedGalleryId: "image-1",
-          selectedColorId: "midnight",
-          loading: false,
-          error: null,
+          ...productStateBase,
+          products: [multiImageProduct],
+          selectedProduct: multiImageProduct,
         },
       },
     });
 
-    const violetButton = screen.getByLabelText("Seleccionar color Electric Violet");
-    await user.click(violetButton);
+    const secondThumb = screen.getByLabelText("Seleccionar vista 2");
+    await user.click(secondThumb);
 
-    expect(store.getState().product.selectedColorId).toBe("violet");
+    expect(store.getState().product.selectedGalleryId).toBe("1");
   });
 });

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import reducer, {
   setSelectedGalleryId,
-  setSelectedColorId,
   setSelectedProduct,
   fetchProducts,
 } from "./productSlice";
@@ -15,6 +14,7 @@ const mockProducts: Product[] = [
     description: "High performance laptop",
     price: 2500000,
     stock: 10,
+    images: [],
   },
   {
     id: "2",
@@ -22,6 +22,7 @@ const mockProducts: Product[] = [
     description: "Bluetooth headphones",
     price: 350000,
     stock: 25,
+    images: [],
   },
 ];
 
@@ -30,20 +31,15 @@ describe("productSlice", () => {
     const state = reducer(undefined, { type: "unknown" });
     expect(state.products).toEqual([]);
     expect(state.selectedProduct).toBeNull();
-    expect(state.selectedGalleryId).toBe("image-1");
-    expect(state.selectedColorId).toBe("midnight");
+    expect(state.selectedGalleryId).toBe("0");
+    expect(state.quantity).toBe(1);
     expect(state.loading).toBe(false);
     expect(state.error).toBeNull();
   });
 
   it("should set selected gallery id", () => {
-    const state = reducer(undefined, setSelectedGalleryId("image-2"));
-    expect(state.selectedGalleryId).toBe("image-2");
-  });
-
-  it("should set selected color id", () => {
-    const state = reducer(undefined, setSelectedColorId("violet"));
-    expect(state.selectedColorId).toBe("violet");
+    const state = reducer(undefined, setSelectedGalleryId("2"));
+    expect(state.selectedGalleryId).toBe("2");
   });
 
   it("should set selected product", () => {
@@ -79,6 +75,22 @@ describe("productSlice", () => {
         fetchProducts.fulfilled(mockProducts, ""),
       );
       expect(state.selectedProduct).toEqual(mockProducts[1]);
+    });
+
+    it("updates selectedProduct from catalog when ids match", () => {
+      const initial = reducer(
+        undefined,
+        setSelectedProduct({ ...mockProducts[0], stock: 1 }),
+      );
+      const freshCatalog: Product[] = [
+        { ...mockProducts[0], stock: 88 },
+        mockProducts[1],
+      ];
+      const state = reducer(
+        initial,
+        fetchProducts.fulfilled(freshCatalog, ""),
+      );
+      expect(state.selectedProduct?.stock).toBe(88);
     });
 
     it("sets error on rejected", () => {

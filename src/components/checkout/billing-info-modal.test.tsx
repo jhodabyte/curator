@@ -78,7 +78,7 @@ describe("BillingInfoModal", () => {
     await user.type(cardInput, "4242424242424242");
 
     await waitFor(() => {
-      expect(screen.getByText(/VISA/)).toBeInTheDocument();
+      expect(screen.getByLabelText("Visa")).toBeInTheDocument();
     });
   });
 
@@ -90,7 +90,7 @@ describe("BillingInfoModal", () => {
     await user.type(cardInput, "5111111111111118");
 
     await waitFor(() => {
-      expect(screen.getByText(/MASTERCARD/)).toBeInTheDocument();
+      expect(screen.getByLabelText("Mastercard")).toBeInTheDocument();
     });
   });
 
