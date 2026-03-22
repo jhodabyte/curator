@@ -24,7 +24,6 @@ SPA React + API NestJS: catálogo con stock, checkout con tarjeta (sandbox del p
 
 - **Node.js** 20 o superior
 - **PostgreSQL** accesible localmente o en red
-- Base de datos creada, por ejemplo: `CREATE DATABASE curator;`
 
 ## Puesta en marcha (local)
 
